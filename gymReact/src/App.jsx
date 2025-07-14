@@ -57,6 +57,7 @@ function LoginPage() {
       alert('login successful!')
       const data =  await response.json();
       localStorage.setItem('token',data.jwtToken);
+      nav("/loggedin")
     }
     else{
       alert('Login failed, incorrect credentials')
@@ -149,10 +150,16 @@ catch(error){
 
 function LoggedInPage(){
 
-  return <SessionList></SessionList>
+  return (
+    <div>
+      <h1>Sessions</h1>
+  <SessionList/>
+  </div>
+  )
 }
 
 function SessionList(){
+  const nav = useNavigate();
   const [sessions, setSessions] = useState([]);
 
   useEffect(()=>{
@@ -171,22 +178,24 @@ function SessionList(){
         }
         const data = await response.json();
         setSessions(data);
+        console.log(data);
     }
     getSessions();
   }, [])
-  function handleDateClick(){
 
+  function handleDateClick(){
+    
   }
   return(
     <div>
       {sessions.length===0?
       <p>No sessions found</p>:
       sessions.map(session=>{
-        <button type="button" onClick={handleDateClick}>{session.date}</button>
+        return <button type="button" key={session.id} onClick={handleDateClick}>{session.date}</button>
       })}
-
     </div>
   )
 }
+
 
 export default App
