@@ -4,6 +4,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import {jwtDecode} from 'jwt-decode';
+import { useParams } from 'react-router-dom'
 
 const router = createBrowserRouter([
   {path: '/',
@@ -15,9 +16,11 @@ const router = createBrowserRouter([
   {path: "/register",
     element: <RegisterPage/>
   },
-  {path: "/loggedin",
-    element: <LoggedInPage/>
-  }
+  {path: "/sessions",
+    element: <SessionsPage/>
+  },
+  {path: `/sessions/:sessionId`,
+element: <Session/>}
 ]);
 function App() {
 
@@ -57,7 +60,7 @@ function LoginPage() {
       alert('login successful!')
       const data =  await response.json();
       localStorage.setItem('token',data.jwtToken);
-      nav("/loggedin")
+      nav("/sessions")
     }
     else{
       alert('Login failed, incorrect credentials')
@@ -108,7 +111,7 @@ console.log('response'+ response.status)
 if(response.ok){
   alert("Successfully registered!")
   setRegistration({name:'',email:'',password:''})
-  nav("/loggedin")
+  nav("/sessions")
 }
 else{
   alert("failed")
@@ -148,7 +151,7 @@ catch(error){
   )
 }
 
-function LoggedInPage(){
+function SessionsPage(){
 
   return (
     <div>
@@ -178,23 +181,70 @@ function SessionList(){
         }
         const data = await response.json();
         setSessions(data);
-        console.log(data);
     }
     getSessions();
   }, [])
 
-  function handleDateClick(){
-    
-  }
+  
   return(
     <div>
       {sessions.length===0?
       <p>No sessions found</p>:
       sessions.map(session=>{
-        return <button type="button" key={session.id} onClick={handleDateClick}>{session.date}</button>
+        return <button type="button" key={session.id} onClick={()=>{nav(`/sessions/${session.id}`)}}>{session.date}</button>
       })}
     </div>
   )
+}
+
+function Session(){
+
+  const [sessionData, setSessionData] = useState({});
+  const {sessionId} = useParams();
+  useEffect(()=>{setSessionData({})
+    async function getSession(){
+      try{
+      const response = await fetch(`http://localhost:8080/users/${jwtDecode(localStorage.getItem('token')).userId}/sessions/${sessionId}`,{
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if(!response.ok){
+          throw new Error("error, returning to sessions list");
+        }
+        const data = await response.json();
+        console.log(data)
+        setSessionData(data);
+        
+        
+    }
+    catch(error){
+      console.error(error);
+    }
+    
+  }
+    getSession();
+  },[sessionId])
+ 
+
+  return(
+   !sessionData || !Array.isArray(sessionData.movements) ? (
+   <div>loading data</div>):
+   (
+    <div key={sessionId}>
+      <h1>{sessionData.date}</h1>
+            {sessionData.movements.map(movement => (
+              <ul key={movement.id}>{movement.name}
+              {movement.sets.map(set =>(
+                <li key={set.id}>{`${set.weight} x ${set.reps} ${set.rir} RIR`}</li>
+              ))}
+                </ul>
+            ))}
+    </div>
+  )
+)
 }
 
 
