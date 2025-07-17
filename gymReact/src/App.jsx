@@ -311,6 +311,7 @@ function Session() {
   const [sets, setSets] = useState([{ weight: "", reps: "", rir: "" }]);
   const [movementId, setMovementId] = useState("");
   const [editingId, setEditingId] = useState("");
+  const nav =useNavigate();
 
   async function getSession() {
     try {
@@ -397,10 +398,67 @@ function Session() {
       throw new Error("error");
     }
   }
+
+  async function handleDelete() {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/users/${
+          jwtDecode(localStorage.getItem("token")).userId
+        }/sessions/${sessionId}/movements/${movementId}`,
+        {
+          method: "DELETE",
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem("token")}`,
+            'Content-Type': 'application/json'
+          },
+        }
+      );
+      if (response.ok) {
+        alert("deleted movement");
+        setMovementId('')
+        await getSession();
+      }
+    } catch (error) {
+      throw new Error("error");
+    }
+  }
+  {if(movementId!==''&&editingId===''){
+    handleDelete();
+  }}
+
+  async function deleteSession(){
+    try{
+      const response = await fetch(`http://localhost:8080/users/${
+          jwtDecode(localStorage.getItem("token")).userId
+        }/sessions/${sessionId}`,{
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+        }
+      );
+        if(response.ok){
+          alert('session deleted')
+          nav('/sessions');
+        }
+        else{
+          console.log(`http://localhost:8080/users/${
+          jwtDecode(localStorage.getItem("token")).userId
+        }/sessions/${sessionId}`)
+          alert('delete failed')
+        }
+    }
+    catch(error){
+      throw new Error('error')
+    }
+  }
+  
   return !sessionData || !Array.isArray(sessionData.movements) ? (
     <div>loading data</div>
   ) : (
     <div key={sessionId}>
+      <button type="button" onClick={deleteSession}>Delete Session</button>
       <h1>{sessionData.date}</h1>
       <MovementDisplay
         movementData={sessionData.movements}
@@ -466,6 +524,9 @@ function MovementDisplay({
               }}
             >
               Edit Movement
+            </button>
+            <button type="button" onClick={()=>setMovementId(movement.id)}>
+              Delete Movement
             </button>
           </ul>
         ) : (
