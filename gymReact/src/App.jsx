@@ -211,25 +211,24 @@ function SessionList() {
   const [date, setDate] = useState("");
 
   async function getSessions() {
-      const response = await fetch(
-        `http://localhost:8080/users/
+    const response = await fetch(
+      `http://localhost:8080/users/
         ${jwtDecode(localStorage.getItem("token")).userId}/sessions`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error("not found or error");
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
       }
-      const data = await response.json();
-      setSessions(data);
+    );
+    if (!response.ok) {
+      throw new Error("not found or error");
     }
+    const data = await response.json();
+    setSessions(data);
+  }
   useEffect(() => {
-    
     getSessions();
   }, []);
 
@@ -243,7 +242,7 @@ function SessionList() {
         {
           method: "POST",
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ date: date, movements: [] }),
@@ -292,7 +291,9 @@ function SessionList() {
             onChange={(e) => setDate(e.target.value)}
           ></input>
           <button type="submit">Create Session</button>
-          <button type="button" onClick={()=>setAddingSession(false)}>Cancel</button>
+          <button type="button" onClick={() => setAddingSession(false)}>
+            Cancel
+          </button>
         </form>
       )}
     </div>
@@ -308,6 +309,8 @@ function Session() {
   const [isAdding, setIsAdding] = useState(false);
   const [movementName, setMovementName] = useState("");
   const [sets, setSets] = useState([{ weight: "", reps: "", rir: "" }]);
+  const [movementId, setMovementId] = useState("");
+  const [editingId, setEditingId] = useState("");
 
   async function getSession() {
     try {
@@ -338,6 +341,34 @@ function Session() {
     getSession();
   }, [sessionId]);
 
+  async function handleEditSubmission(e) {
+    e.preventDefault();
+    try {
+      const movement = { name: movementName, sets: sets };
+      const response = await fetch(
+        `http://localhost:8080/users/${
+          jwtDecode(localStorage.getItem("token")).userId
+        }/sessions/${sessionId}/movements/${movementId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(movement),
+        }
+      );
+      if (response.ok) {
+        alert("successful edit");
+        setEditingId("");
+        await getSession();
+      } else {
+        alert("error in saving");
+      }
+    } catch (error) {
+      throw new Error("error");
+    }
+  }
   async function handleAddSubmission(e) {
     e.preventDefault();
     try {
@@ -371,7 +402,17 @@ function Session() {
   ) : (
     <div key={sessionId}>
       <h1>{sessionData.date}</h1>
-      <MovementDisplay movementData={sessionData.movements} />
+      <MovementDisplay
+        movementData={sessionData.movements}
+        onSubmission={handleEditSubmission}
+        movementName={movementName}
+        setMovementName={setMovementName}
+        sets={sets}
+        setSets={setSets}
+        setMovementId={setMovementId}
+        editingId={editingId}
+        setEditingId={setEditingId}
+      />
 
       {isAdding ? (
         <AddMovementForm
@@ -395,17 +436,49 @@ function Session() {
   );
 }
 
-function MovementDisplay({ movementData }) {
+function MovementDisplay({
+  movementData,
+  onSubmission,
+  movementName,
+  setMovementName,
+  sets,
+  setSets,
+  setMovementId,
+  editingId,
+  setEditingId,
+}) {
   const data = movementData;
 
   return (
     <div>
-      {data.map((movement) => (
-        <ul key={movement.id}>
-          {movement.name}
-          <SetDisplay setData={movement.sets} />
-        </ul>
-      ))}
+      {data.map((movement) =>
+        editingId !== movement.id ? (
+          <ul key={movement.id}>
+            {movement.name}
+            <SetDisplay setData={movement.sets} />
+            <button
+              type="button"
+              onClick={() => {
+                setEditingId(movement.id);
+                setMovementId(movement.id);
+                setMovementName(movement.name);
+                setSets(movement.sets);
+              }}
+            >
+              Edit Movement
+            </button>
+          </ul>
+        ) : (
+          <AddMovementForm
+            onCancel={() => setEditingId("")}
+            onSubmission={onSubmission}
+            movementName={movementName}
+            setMovementName={setMovementName}
+            sets={sets}
+            setSets={setSets}
+          />
+        )
+      )}
     </div>
   );
 }
@@ -457,7 +530,7 @@ function AddMovementForm({
       <button type="button" onClick={handleAddSetForm}>
         Add Set
       </button>
-      <button type="submit">Confirm Add</button>
+      <button type="submit">Confirm</button>
       <button type="button" onClick={onCancel}>
         Cancel
       </button>
