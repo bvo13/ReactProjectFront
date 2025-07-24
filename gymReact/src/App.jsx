@@ -4,8 +4,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { jwtDecode } from "jwt-decode";
 import { useParams } from "react-router-dom";
@@ -24,28 +22,61 @@ function App() {
     </>
   );
 }
+function Button({
+  children,
+  onClick,
+  type = "button",
+  disabled = false,
+  className,
+}) {
+  return (
+    <button
+      onClick={onClick}
+      type={type}
+      disabled={disabled}
+      className={`bg-blue-300 text-white hover:bg-blue-500 h-12 w-36 rounded-3xl disabled:bg-gray-500 disabled:cursor-not-allowed${className}`}
+    >
+      {children}
+    </button>
+  );
+}
 
 function HomePage() {
   const nav = useNavigate();
   return (
-    <div>
-      <h1>Home</h1>
-      <button
-        type="button"
-        onClick={(e) => {
-          nav("/login");
-        }}
-      >
-        Login
-      </button>
-      <button
-        type="button"
-        onClick={(e) => {
-          nav("/register");
-        }}
-      >
-        Register
-      </button>
+    <div className="flex flex-col h-screen">
+      <h1 className="text-9xl font-serif mb-8">Get Started!</h1>
+      <p className="items-center justify-center">
+        Welcome to a tool built to assist you in logging your gym sessions
+        without any complexities and complications!
+      </p>
+      <p>
+        {" "}
+        Features include session creations with dates to label, custom
+        exercises, and set creation.
+      </p>
+      <div className="flex-grow flex flex-col items-center justify-center space-y-20">
+        <Button
+          className="m-2 h-16 w-56 text-2xl"
+          onClick={() => {
+            nav("/login");
+          }}
+        >
+          Login
+        </Button>
+        <Button
+          className="m-2 h-16 w-56 text-2xl"
+          onClick={() => {
+            nav("/register");
+          }}
+        >
+          Register
+        </Button>
+      </div>
+      <p class="m-20">
+        Click "Login" if you already have an existing account or "Register" if
+        you are planning to create one.
+      </p>
     </div>
   );
 }
@@ -82,30 +113,48 @@ function LoginPage() {
 
   return (
     <div>
-      <form onSubmit={handleLoginSubmit}>
-        <label htmlFor="email">Email: </label>
-        <input type="email" id="email" name="email" onChange={handleChange} />
+      <div className="relative">
+        <Button className=" absolute top-0 left-0 m-4" onClick={() => nav("/")}>
+          Home
+        </Button>
+        <div className="flex-grow flex justify-center">
+          <h1 className="m-10 font-serif text-9xl">Login Page</h1>
+        </div>
+      </div>
 
-        <label htmlFor="password">Password: </label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          onChange={handleChange}
-        />
-        <button type="submit" disabled={!areFilled}>
-          Login
-        </button>
-      </form>
-      <button
-        type="button"
-        className="backButton"
-        onClick={(e) => {
-          nav("/");
-        }}
+      <form
+        className="flex-col flex items-center justify-center space-y-10 m-10"
+        onSubmit={handleLoginSubmit}
       >
-        Home
-      </button>
+        <div className="flex items-center justify-center space-x-5">
+          <label htmlFor="email">
+            Email:{" "}
+          </label>
+          <input
+            className="border-2 border-blue-300"
+            type="email"
+            id="email"
+            name="email"
+            onChange={handleChange}
+          />
+        </div>
+        <div className="flex items-center justify-center space-x-5">
+          <label htmlFor="password">
+            Password:{" "}
+          </label>
+          <input
+            className="border-2 border-blue-300"
+            type="password"
+            id="password"
+            name="password"
+            onChange={handleChange}
+          />
+        </div>
+        <p className="m-10"></p>
+        <Button className="" type="submit" disabled={!areFilled}>
+          Login
+        </Button>
+      </form>
     </div>
   );
 }
@@ -149,48 +198,51 @@ function RegisterPage() {
 
   return (
     <div>
-      <h2>Register Page</h2>
-      <form onSubmit={handleRegistrationSubmit}>
+      <div className="relative">
+        <Button className=" absolute top-0 left-0 m-4" onClick={() => nav("/")}>
+          Home
+        </Button>
+        <div className="flex-grow flex justify-center">
+          <h1 className="m-10 font-serif text-9xl">Register Page</h1>
+        </div>
+        </div>
+      
+      <form className="flex-col flex justify-center items-center space-y-10 m-10" onSubmit={handleRegistrationSubmit}>
+        <div className="flex space-x-5">
         <label htmlFor="name">Name: </label>
-        <input
+        <input className="border-2 border-blue-300"
           type="text"
           id="name"
           name="name"
           value={registration.name}
           onChange={handleChange}
         />
-
+        </div>
+        <div className="flex space-x-5">
         <label htmlFor="email">Email: </label>
-        <input
+        <input className="border-2 border-blue-300"
           type="email"
           id="email"
           name="email"
           value={registration.email}
           onChange={handleChange}
         />
-
+      </div>
+      <div className="flex space-x-5">
         <label htmlFor="password">Password: </label>
-        <input
+        <input className="border-2 border-blue-300"
           type="password"
           id="password"
           name="password"
           value={registration.password}
           onChange={handleChange}
         />
-
-        <button type="submit" disabled={!areFilled}>
+        </div>
+      <p className="m-10"></p>
+        <Button type="submit" disabled={!areFilled}>
           Register
-        </button>
+        </Button>
       </form>
-      <button
-        type="button"
-        className="backButton"
-        onClick={(e) => {
-          nav("/");
-        }}
-      >
-        Home
-      </button>
     </div>
   );
 }
@@ -311,7 +363,9 @@ function Session() {
   const [sets, setSets] = useState([{ weight: "", reps: "", rir: "" }]);
   const [movementId, setMovementId] = useState("");
   const [editingId, setEditingId] = useState("");
-  const nav =useNavigate();
+  const [editingDate, setEditingDate] = useState(false);
+  const [dateForm, setDateForm] = useState("");
+  const nav = useNavigate();
 
   async function getSession() {
     try {
@@ -408,58 +462,112 @@ function Session() {
         {
           method: "DELETE",
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem("token")}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
           },
         }
       );
       if (response.ok) {
         alert("deleted movement");
-        setMovementId('')
+        setMovementId("");
         await getSession();
       }
     } catch (error) {
       throw new Error("error");
     }
   }
-  {if(movementId!==''&&editingId===''){
-    handleDelete();
-  }}
-
-  async function deleteSession(){
-    try{
-      const response = await fetch(`http://localhost:8080/users/${
-          jwtDecode(localStorage.getItem("token")).userId
-        }/sessions/${sessionId}`,{
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-        }
-      );
-        if(response.ok){
-          alert('session deleted')
-          nav('/sessions');
-        }
-        else{
-          console.log(`http://localhost:8080/users/${
-          jwtDecode(localStorage.getItem("token")).userId
-        }/sessions/${sessionId}`)
-          alert('delete failed')
-        }
-    }
-    catch(error){
-      throw new Error('error')
+  {
+    if (movementId !== "" && editingId === "") {
+      handleDelete();
     }
   }
-  
+
+  async function deleteSession() {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/users/${
+          jwtDecode(localStorage.getItem("token")).userId
+        }/sessions/${sessionId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        alert("session deleted");
+        nav("/sessions");
+      } else {
+        alert("delete failed");
+      }
+    } catch (error) {
+      throw new Error("error");
+    }
+  }
+  async function handleDateChange(e) {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `http://localhost:8080/users/${
+          jwtDecode(localStorage.getItem("token")).userId
+        }/sessions/${sessionId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ date: dateForm }),
+        }
+      );
+      if (response.ok) {
+        alert("date changed");
+        setEditingDate(false);
+        await getSession();
+      } else {
+        alert("date change failed");
+        console.log(dateForm);
+      }
+    } catch (error) {
+      throw new Error("error");
+    }
+  }
+
   return !sessionData || !Array.isArray(sessionData.movements) ? (
     <div>loading data</div>
   ) : (
     <div key={sessionId}>
-      <button type="button" onClick={deleteSession}>Delete Session</button>
-      <h1>{sessionData.date}</h1>
+      <button type="button" onClick={deleteSession}>
+        Delete Session
+      </button>
+      {!editingDate ? (
+        <div>
+          <h1>{sessionData.date}</h1>{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setEditingDate(true);
+              setDateForm(sessionData.date);
+            }}
+          >
+            Change Date
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleDateChange}>
+          <input
+            type="date"
+            onChange={(e) => setDateForm(e.target.value)}
+            value={dateForm}
+          ></input>
+          <button type="submit">Confirm</button>{" "}
+          <button type="button" onClick={() => setEditingDate(false)}>
+            Cancel
+          </button>
+        </form>
+      )}
       <MovementDisplay
         movementData={sessionData.movements}
         onSubmission={handleEditSubmission}
@@ -525,7 +633,7 @@ function MovementDisplay({
             >
               Edit Movement
             </button>
-            <button type="button" onClick={()=>setMovementId(movement.id)}>
+            <button type="button" onClick={() => setMovementId(movement.id)}>
               Delete Movement
             </button>
           </ul>
