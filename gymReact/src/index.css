@@ -4,7 +4,7 @@
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 
-body{
-  @apply
-  font-mono
-}
+ html, body #root{
+  margin: 0;
+  padding: 0;
+ }

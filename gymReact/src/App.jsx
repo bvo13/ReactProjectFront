@@ -6,7 +6,10 @@ import {
 import { useEffect, useState } from "react";
 import "./App.css";
 import { jwtDecode } from "jwt-decode";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import clsx from "clsx";
+import Input from './ReusableComponents/FormInput';
+import Label from './ReusableComponents/FormLabel';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> },
@@ -22,19 +25,38 @@ function App() {
     </>
   );
 }
+
+function AuthenticatedPageLayout({ children, title, className = "" }) {
+  return (
+    <div
+      className={`min-h-screen min-w-screen bg-gray-500 flex flex-col font-serif text-black ${className}`}
+    >
+      <header className="p-4 flex justify-center items-center">
+        <h1 className="text-5xl font-bold">{title}</h1>
+      </header>
+      <main className="flex-grow flex flex-col p-4">
+        {children}
+      </main>
+      <footer className="h-12 border-t-2 border-t-black flex justify-around items-center">
+        <Link to="/sessions">Sessions</Link>
+      </footer>
+    </div>
+  );
+}
 function Button({
   children,
   onClick,
   type = "button",
   disabled = false,
-  className,
+  className="",
+  size = "h-12 w-36",
 }) {
   return (
     <button
       onClick={onClick}
       type={type}
       disabled={disabled}
-      className={`bg-blue-300 text-white hover:bg-blue-500 h-12 w-36 rounded-3xl disabled:bg-gray-500 disabled:cursor-not-allowed${className}`}
+      className={`bg-blue-300 text-white hover:bg-blue-500 ${size} rounded-3xl ${className} disabled:bg-gray-500 disabled:cursor-not-allowed`}
     >
       {children}
     </button>
@@ -44,8 +66,9 @@ function Button({
 function HomePage() {
   const nav = useNavigate();
   return (
-    <div className="flex flex-col h-screen">
-      <h1 className="text-9xl font-serif mb-8">Get Started!</h1>
+    <div className="flex flex-col h-screen w-screen">
+      <h1 className="text-9xl font-serif mb-8 p-5">Get Started!</h1>
+
       <p className="items-center justify-center">
         Welcome to a tool built to assist you in logging your gym sessions
         without any complexities and complications!
@@ -73,7 +96,7 @@ function HomePage() {
           Register
         </Button>
       </div>
-      <p class="m-20">
+      <p className="m-20">
         Click "Login" if you already have an existing account or "Register" if
         you are planning to create one.
       </p>
@@ -112,7 +135,7 @@ function LoginPage() {
   const areFilled = login.email != "" && login.password != "";
 
   return (
-    <div>
+    <div className ="h-screen w-screen">
       <div className="relative">
         <Button className=" absolute top-0 left-0 m-4" onClick={() => nav("/")}>
           Home
@@ -127,11 +150,8 @@ function LoginPage() {
         onSubmit={handleLoginSubmit}
       >
         <div className="flex items-center justify-center space-x-5">
-          <label htmlFor="email">
-            Email:{" "}
-          </label>
-          <input
-            className="border-2 border-blue-300"
+          <Label htmlFor="email">Email: </Label>
+          <Input
             type="email"
             id="email"
             name="email"
@@ -139,11 +159,8 @@ function LoginPage() {
           />
         </div>
         <div className="flex items-center justify-center space-x-5">
-          <label htmlFor="password">
-            Password:{" "}
-          </label>
-          <input
-            className="border-2 border-blue-300"
+          <Label htmlFor="password">Password: </Label>
+          <Input
             type="password"
             id="password"
             name="password"
@@ -197,7 +214,7 @@ function RegisterPage() {
     registration.password != "";
 
   return (
-    <div>
+    <div className="h-screen w-screen">
       <div className="relative">
         <Button className=" absolute top-0 left-0 m-4" onClick={() => nav("/")}>
           Home
@@ -205,40 +222,43 @@ function RegisterPage() {
         <div className="flex-grow flex justify-center">
           <h1 className="m-10 font-serif text-9xl">Register Page</h1>
         </div>
-        </div>
-      
-      <form className="flex-col flex justify-center items-center space-y-10 m-10" onSubmit={handleRegistrationSubmit}>
-        <div className="flex space-x-5">
-        <label htmlFor="name">Name: </label>
-        <input className="border-2 border-blue-300"
-          type="text"
-          id="name"
-          name="name"
-          value={registration.name}
-          onChange={handleChange}
-        />
-        </div>
-        <div className="flex space-x-5">
-        <label htmlFor="email">Email: </label>
-        <input className="border-2 border-blue-300"
-          type="email"
-          id="email"
-          name="email"
-          value={registration.email}
-          onChange={handleChange}
-        />
       </div>
-      <div className="flex space-x-5">
-        <label htmlFor="password">Password: </label>
-        <input className="border-2 border-blue-300"
-          type="password"
-          id="password"
-          name="password"
-          value={registration.password}
-          onChange={handleChange}
-        />
+
+      <form
+        className="flex-col flex justify-center items-center space-y-10 m-10"
+        onSubmit={handleRegistrationSubmit}
+      >
+        <div className="flex space-x-5">
+          <Label htmlFor="name">Name: </Label>
+          <Input
+            type="text"
+            id="name"
+            name="name"
+            value={registration.name}
+            onChange={handleChange}
+          />
         </div>
-      <p className="m-10"></p>
+        <div className="flex space-x-5">
+          <Label htmlFor="email">Email: </Label>
+          <Input
+            type="email"
+            id="email"
+            name="email"
+            value={registration.email}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="flex space-x-5">
+          <Label htmlFor="password">Password: </Label>
+          <Input
+            type="password"
+            id="password"
+            name="password"
+            value={registration.password}
+            onChange={handleChange}
+          />
+        </div>
+        <p className="m-10"></p>
         <Button type="submit" disabled={!areFilled}>
           Register
         </Button>
@@ -249,10 +269,11 @@ function RegisterPage() {
 
 function SessionsPage() {
   return (
-    <div>
-      <h1>Sessions</h1>
-      <SessionList />
-    </div>
+    <AuthenticatedPageLayout title="Sessions">
+      <div>
+        <SessionList />
+      </div>
+    </AuthenticatedPageLayout>
   );
 }
 
@@ -318,30 +339,29 @@ function SessionList() {
       ) : (
         sessions.map((session) => {
           return (
-            <button
-              type="button"
+            <Button
               key={session.id}
               onClick={() => {
                 nav(`/sessions/${session.id}`);
               }}
             >
               {session.date}
-            </button>
+            </Button>
           );
         })
       )}
       {!addingSession ? (
-        <button type="button" onClick={() => setAddingSession(true)}>
+        <Button size="h-6 w-6" onClick={() => setAddingSession(true)}>
           +
-        </button>
+        </Button>
       ) : (
         <form onSubmit={handleSessionCreation}>
-          <input
+          <Input
             type="date"
             placeholder="enter date in format year-month-day"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-          ></input>
+          />
           <button type="submit">Create Session</button>
           <button type="button" onClick={() => setAddingSession(false)}>
             Cancel
@@ -416,6 +436,9 @@ function Session() {
       if (response.ok) {
         alert("successful edit");
         setEditingId("");
+        setMovementId('');
+        setSets([{ weight: "", reps: "", rir: "" }])
+        setMovementName('')
         await getSession();
       } else {
         alert("error in saving");
@@ -447,6 +470,8 @@ function Session() {
         setIsAdding(false);
         setMovementName("");
         setSets([{ weight: "", reps: "", rir: "" }]);
+        setEditingId('');
+        setMovementId('');
       }
     } catch (error) {
       throw new Error("error");
@@ -538,71 +563,71 @@ function Session() {
   return !sessionData || !Array.isArray(sessionData.movements) ? (
     <div>loading data</div>
   ) : (
-    <div key={sessionId}>
-      <button type="button" onClick={deleteSession}>
-        Delete Session
-      </button>
-      {!editingDate ? (
-        <div>
-          <h1>{sessionData.date}</h1>{" "}
-          <button
-            type="button"
-            onClick={() => {
-              setEditingDate(true);
-              setDateForm(sessionData.date);
-            }}
-          >
-            Change Date
-          </button>
-        </div>
-      ) : (
-        <form onSubmit={handleDateChange}>
-          <input
-            type="date"
-            onChange={(e) => setDateForm(e.target.value)}
-            value={dateForm}
-          ></input>
-          <button type="submit">Confirm</button>{" "}
-          <button type="button" onClick={() => setEditingDate(false)}>
-            Cancel
-          </button>
-        </form>
-      )}
-      <MovementDisplay
-        movementData={sessionData.movements}
-        onSubmission={handleEditSubmission}
-        movementName={movementName}
-        setMovementName={setMovementName}
-        sets={sets}
-        setSets={setSets}
-        setMovementId={setMovementId}
-        editingId={editingId}
-        setEditingId={setEditingId}
-      />
-
-      {isAdding ? (
-        <AddMovementForm
-          onCancel={() => {
-            setIsAdding(false);
-            setMovementName("");
-            setSets([{ weight: "", reps: "", rir: "" }]);
-          }}
-          onSubmission={handleAddSubmission}
+    <AuthenticatedPageLayout title={sessionData.date}>
+      <div className="" key={sessionId}>
+        <Button className="absolute left-0 top-0"onClick={deleteSession}>Delete Session</Button>
+        {!editingDate ? (
+          <div>
+            <Button className="mb-10"
+              onClick={() => {
+                setEditingDate(true);
+                setDateForm(sessionData.date);
+              }}
+            >
+              Change Date
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleDateChange}>
+            <Input
+              type="date"
+              onChange={(e) => setDateForm(e.target.value)}
+              value={dateForm}
+            />
+            <Button type="submit">Confirm</Button>{" "}
+            <Button onClick={() => setEditingDate(false)}>Cancel</Button>
+          </form>
+        )}
+        <div className="flex flex-col flex-grow items-center justify-center">
+        <MovementDisplay
+          isAdding={isAdding}
+          movementData={sessionData.movements}
+          onSubmission={handleEditSubmission}
           movementName={movementName}
           setMovementName={setMovementName}
           sets={sets}
           setSets={setSets}
+          setMovementId={setMovementId}
+          editingId={editingId}
+          setEditingId={setEditingId}
         />
-      ) : (
-        <button type="button" onClick={() => setIsAdding(true)}>
-          Add Movement
-        </button>
-      )}
-    </div>
+
+        {isAdding ? (
+          <AddMovementForm
+            onCancel={() => {
+              setIsAdding(false);
+              setMovementName("");
+              setSets([{ weight: "", reps: "", rir: "" }]);
+            }}
+            onSubmission={handleAddSubmission}
+            movementName={movementName}
+            setMovementName={setMovementName}
+            sets={sets}
+            setSets={setSets}
+          />
+        ) : (
+          <Button disabled={editingId !== ""} onClick={() => setIsAdding(true)}>
+            Add Movement
+          </Button>
+        )}
+        </div>
+      </div>
+    </AuthenticatedPageLayout>
   );
 }
 
 function MovementDisplay({
+  isAdding,
   movementData,
   onSubmission,
   movementName,
@@ -615,15 +640,19 @@ function MovementDisplay({
 }) {
   const data = movementData;
 
-  return (
-    <div>
+  return (<div className="w-full max-w-md mx-auto">
+    <div className="max-h-[500px] overflow-y-auto flex flex-col items-center w-full space-y-4 mb-7 border-2">
       {data.map((movement) =>
         editingId !== movement.id ? (
+          <div className="w-full max-w-md bg-white rounded-lg shadow p-4 flex flex-col items-center space-y-2 mb-5">
           <ul key={movement.id}>
+            <h2 className="text-lg font-semibold text-center">
             {movement.name}
+            </h2>
             <SetDisplay setData={movement.sets} />
-            <button
-              type="button"
+            <div className= "flex space-x-2">
+            <Button
+              disabled={isAdding}
               onClick={() => {
                 setEditingId(movement.id);
                 setMovementId(movement.id);
@@ -632,14 +661,24 @@ function MovementDisplay({
               }}
             >
               Edit Movement
-            </button>
-            <button type="button" onClick={() => setMovementId(movement.id)}>
+            </Button>
+            <Button
+              disabled={isAdding}
+              onClick={() => setMovementId(movement.id)}
+            >
               Delete Movement
-            </button>
+            </Button>
+            </div>
           </ul>
+          </div>
         ) : (
           <AddMovementForm
-            onCancel={() => setEditingId("")}
+            onCancel={() => {
+              setEditingId("");
+              setMovementId("");
+              setSets([{ weight: "", reps: "", rir: "" }]);
+              setMovementName('')
+            }}
             onSubmission={onSubmission}
             movementName={movementName}
             setMovementName={setMovementName}
@@ -648,6 +687,7 @@ function MovementDisplay({
           />
         )
       )}
+    </div>
     </div>
   );
 }
@@ -680,13 +720,13 @@ function AddMovementForm({
 
   return (
     <form onSubmit={onSubmission}>
-      <input
+      <Input
         type="text"
         name="name"
         placeholder="Movement Name"
         onChange={(e) => setMovementName(e.target.value)}
         value={movementName}
-      ></input>
+      />
       {sets.map((set, i) => (
         <AddSetForm
           key={i}
@@ -696,13 +736,9 @@ function AddMovementForm({
           onChange={handleSetChange}
         />
       ))}
-      <button type="button" onClick={handleAddSetForm}>
-        Add Set
-      </button>
-      <button type="submit">Confirm</button>
-      <button type="button" onClick={onCancel}>
-        Cancel
-      </button>
+      <Button onClick={handleAddSetForm}>Add Set</Button>
+      <Button type="submit">Confirm</Button>
+      <Button onClick={onCancel}>Cancel</Button>
     </form>
   );
 }
@@ -713,31 +749,31 @@ function AddSetForm({ setData, index, onRemove, onChange }) {
     onChange(i, { ...setData, [e.target.name]: e.target.value });
   }
   return (
-    <div>
-      <input
+    <div className="flex flex-col items-center m-3">
+      <Input
         type="number"
         name="weight"
         placeholder="weight"
         onChange={handleChange}
         value={setData.weight}
-      ></input>
-      <input
+      />
+      <Input
         type="number"
         name="reps"
         placeholder="reps"
         onChange={handleChange}
         value={setData.reps}
-      ></input>
-      <input
+      />
+      <Input
         type="number"
         name="rir"
         placeholder="rir"
         onChange={handleChange}
         value={setData.rir}
-      ></input>
-      <button type="button" onClick={() => onRemove(i)}>
-        Remove Set
-      </button>
+      />
+      <Button size="h-6 w-6 rounded-full" onClick={() => onRemove(i)}>
+        -
+      </Button>
     </div>
   );
 }
