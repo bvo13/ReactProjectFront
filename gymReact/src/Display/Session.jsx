@@ -1,4 +1,3 @@
-import { getToken } from "../Helpers/tokenRetrieval";
 import { apiFetch } from "../Helpers/apiHelper";
 import Button from "../ReusableComponents/Button";
 import Input from "../ReusableComponents/FormInput";
@@ -21,15 +20,11 @@ function Session() {
   const [editingDate, setEditingDate] = useState(false);
   const [dateForm, setDateForm] = useState("");
   const nav = useNavigate();
-  const token = getToken();
   async function getSession() {
     try {
-      const data = await apiFetch(
-        `/users/${jwtDecode(token).userId}/sessions/${sessionId}`,
-        {
-          method: "GET",
-        }
-      );
+      const data = await apiFetch(`/users/me/sessions/${sessionId}`, {
+        method: "GET",
+      });
 
       console.log(data);
       setSessionData(data);
@@ -47,9 +42,8 @@ function Session() {
     e.preventDefault();
     try {
       const movement = { name: movementName, sets: sets };
-      const token = getToken();
       const data = await apiFetch(
-        `/users/${jwtDecode(token).userId}/sessions/${sessionId}/movements/${movementId}`,
+        `/users/me/sessions/${sessionId}/movements/${movementId}`,
         {
           method: "PUT",
           body: JSON.stringify(movement),
@@ -69,13 +63,10 @@ function Session() {
     e.preventDefault();
     try {
       const movement = { name: movementName, sets: sets };
-      const data = await apiFetch(
-        `/users/${jwtDecode(token).userId}/sessions/${sessionId}/movements`,
-        {
-          method: "POST",
-          body: JSON.stringify(movement),
-        }
-      );
+      const data = await apiFetch(`/users/me/sessions/${sessionId}/movements`, {
+        method: "POST",
+        body: JSON.stringify(movement),
+      });
       alert("movement added!");
       await getSession();
       setIsAdding(false);
@@ -91,7 +82,7 @@ function Session() {
   async function handleDelete(id) {
     try {
       const data = await apiFetch(
-        `/users/${jwtDecode(token).userId}/sessions/${sessionId}/movements/${id}`,
+        `/users/me/sessions/${sessionId}/movements/${id}`,
         {
           method: "DELETE",
         }
@@ -100,19 +91,15 @@ function Session() {
       await getSession();
     } catch (error) {
       console.error(error);
-      alert('an error occurred while deleting')
+      alert("an error occurred while deleting");
     }
   }
-  
 
   async function deleteSession() {
     try {
-      await apiFetch(
-        `/users/${jwtDecode(token).userId}/sessions/${sessionId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      await apiFetch(`/users/me/sessions/${sessionId}`, {
+        method: "DELETE",
+      });
       alert("session deleted");
       nav("/sessions");
     } catch (error) {
@@ -122,14 +109,13 @@ function Session() {
   async function handleDateChange(e) {
     e.preventDefault();
     try {
-      const data = await apiFetch(`/users/${jwtDecode(token).userId}/sessions/${sessionId}`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({date: dateForm}),
-    })
-        alert("date changed");
-        setEditingDate(false);
-        await getSession();
+      const data = await apiFetch(`/users/me/sessions/${sessionId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ date: dateForm }),
+      });
+      alert("date changed");
+      setEditingDate(false);
+      await getSession();
     } catch (error) {
       throw new Error("error");
     }

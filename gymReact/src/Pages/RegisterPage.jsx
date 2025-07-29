@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { getToken } from "../Helpers/tokenRetrieval";
+
 import { apiFetch } from "../Helpers/apiHelper";
 import Button from "../ReusableComponents/Button";
 import Label from "../ReusableComponents/FormLabel";
@@ -9,9 +9,6 @@ import { useEffect, useState } from "react";
 function RegisterPage() {
   const nav = useNavigate();
 
-  useEffect(() => {
-  localStorage.removeItem('token');
-}, []);
   const [registration, setRegistration] = useState({
     name: "",
     email: "",
@@ -21,16 +18,13 @@ function RegisterPage() {
   async function handleRegistrationSubmit(e) {
     e.preventDefault();
     try {
-      const data = await apiFetch('/api/auth/register',
-        {method: 'POST',
-          body: JSON.stringify(registration),
-        }
-      );
-      alert('registered successfully')
-      localStorage.setItem('token',data.jwtToken);
+      const data = await apiFetch("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify(registration),
+      });
+      alert("registered successfully");
       setRegistration({ name: "", email: "", password: "" });
       nav("/sessions");
-   
     } catch (error) {
       alert("an error with registration occurred");
     }

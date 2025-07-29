@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import Button from "../ReusableComponents/Button";
 
 function HomePage() {
-    localStorage.setItem('token',null);
   const nav = useNavigate();
   return (
     <div className="flex flex-col h-screen w-screen">

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { getToken } from "../Helpers/tokenRetrieval";
+
 import { apiFetch } from "../Helpers/apiHelper";
 import Button from "../ReusableComponents/Button";
 import Label from "../ReusableComponents/FormLabel";
@@ -10,9 +10,6 @@ import { useEffect, useState } from "react";
 function LoginPage() {
   const nav = useNavigate();
 
-useEffect(() => {
-  localStorage.removeItem('token');
-}, []);
   const [login, setLogin] = useState({ email: "", password: "" });
   async function handleLoginSubmit(e) {
     e.preventDefault();
@@ -22,10 +19,9 @@ useEffect(() => {
         method: "POST",
         body: JSON.stringify(login),
       });
-      alert('logged in succesfully');
-      localStorage.setItem('token', data.jwtToken);
-      nav('/sessions');
-      console.log(data.jwtToken)
+      alert("logged in succesfully");
+
+      nav("/sessions");
     } catch (error) {
       alert("Incorrect Credentials, or other error");
     }
