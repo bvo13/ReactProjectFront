@@ -9,7 +9,7 @@ export async function apiFetch(endpoint, request = {}) {
     ...(request.headers || {}),
   };
 
-  let response = await fetch(`${TEST_URL}${endpoint}`, {
+  let response = await fetch(`${BASE_URL}${endpoint}`, {
     ...request,
     headers,
     credentials: "include",
@@ -17,12 +17,12 @@ export async function apiFetch(endpoint, request = {}) {
 
   if (response.status === 401) {
     
-      const refresh = await fetch(`${TEST_URL}/api/auth/refresh`, {
+      const refresh = await fetch(`${BASE_URL}/api/auth/refresh`, {
         method: "POST",
         credentials: "include",
       });
       if (refresh.ok) {
-        response = await fetch(`${TEST_URL}${endpoint}`, {
+        response = await fetch(`${BASE_URL}${endpoint}`, {
           ...request,
           headers,
           credentials: "include",
